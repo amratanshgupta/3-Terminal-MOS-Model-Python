@@ -80,7 +80,7 @@ class Surface_Potential_To_VGB():
 
                         if break_out > 2:
                             break_out = 0
-                            if abs(test - (self.phi_f + self.Vcb)) < 1.75e-3 or abs(test - (2 * self.phi_f + self.Vcb)) < 4.07e-3 or abs(test - ((2 * self.phi_f) + self.Vcb + 5 * vt)) < 2.5e-4:
+                            if abs(test - (self.phi_f + self.Vcb)) < 3.75e-3 or abs(test - (2 * self.phi_f + self.Vcb)) < 4.07e-3 or abs(test - ((2 * self.phi_f) + self.Vcb + 5 * vt)) < 2.5e-4:
                                 self.Vgb_regions.append(j)
                             break
 
@@ -101,7 +101,7 @@ class Surface_Potential_To_VGB():
         for i, j in zip(self.phi_list, self.Vgb_list):
             self.phi_vgb_map[i] = j
         # print(self.phi_vgb_map)
-        # print(self.Vgb_regions)
+        print(self.Vgb_regions)
         return (self.Vgb_regions, self.phi_vgb_map, self.phi_regions)
 #=====================================================================
 
@@ -121,20 +121,22 @@ class Surface_Potential_To_VGB():
         # plt.xlim(0,)
 
         # Text mentioning the Depletion, Weak/Moderate/Strong Inversion regions
-        plt.annotate("Depletion", xy=((self.Vgb_regions[0] - 0.5, (self.phi_f - 0.25))))
-        plt.annotate("Weak\nInversion", xy=((self.Vgb_regions[1] - 0.65, (self.phi_f + 0.025))))
-        plt.annotate("Moderate\nInversion", xy=((self.Vgb_regions[2] - 0.65, (2 * self.phi_f + 0.01))))
-        plt.annotate("Strong\nInversion", xy=((self.Vgb_regions[2] + 0.76, (2 * self.phi_f + 0.135))))
+        plt.annotate("Depletion", xy=((self.Vgb_regions[0] * 0.70, (self.phi_f - 0.25))))
+        plt.annotate("Weak\nInversion", xy=((self.Vgb_regions[1] * 0.875, (self.phi_f + 0.025))))
+        if len(self.Vgb_regions) > 2:
+            plt.annotate("Moderate\nInversion", xy=((self.Vgb_regions[-1] * 0.85, (2 * self.phi_f + 0.01))))
+            plt.annotate("Strong\nInversion", xy=((self.Vgb_regions[-1] * 1.025, (2 * self.phi_f + 0.135))))
 
         # Horizontal lines at region boundaries
-        plt.axhline(y=(2 * self.phi_f) + (5 * vt) + self.Vcb, color='g', linestyle='--')
-        plt.axhline(y=(2 * self.phi_f) + self.Vcb, color='g', linestyle='--')
-        plt.axhline(y=(self.phi_f) + self.Vcb, color='g', linestyle='--')
+        plt.axhline(y=(2 * self.phi_f) + (5 * vt) + self.Vcb, color='g', linestyle='--', alpha=0.75)
+        plt.axhline(y=(2 * self.phi_f) + self.Vcb, color='g', linestyle='--', alpha=0.75)
+        plt.axhline(y=(self.phi_f) + self.Vcb, color='g', linestyle='--', alpha=0.75)
 
         # Vertical lines at region boundaries
-        plt.axvline(x=self.Vgb_regions[0], color='#968F8F', linestyle='--')
-        plt.axvline(x=self.Vgb_regions[1], color='#968F8F', linestyle='--')
-        plt.axvline(x=self.Vgb_regions[2], color='#968F8F', linestyle='--')
+        plt.axvline(x=self.Vgb_regions[0], color='#968F8F', linestyle='--', alpha=0.75)
+        plt.axvline(x=self.Vgb_regions[1], color='#968F8F', linestyle='--', alpha=0.75)
+        if len(self.Vgb_regions) > 2:
+            plt.axvline(x=self.Vgb_regions[-1], color='#968F8F', linestyle='--', alpha=0.75)
 
         # print(u"$V_{L0}$", end=' ')
         # print("= {}".format(self.Vgb_regions[0]))
@@ -152,10 +154,12 @@ class Surface_Potential_To_VGB():
         # Placing corresponding VL0, VM0, and VH0 at appropriate points on VGB-axis
         plt.text(self.Vgb_regions[0] - Surface_Potential_To_VGB.vfb, 0.1, r'$V_{L0}$ =' + '{:.3f} V'.format(self.Vgb_regions[0]))
         plt.text(self.Vgb_regions[1] - Surface_Potential_To_VGB.vfb, 0.1, r'$V_{M0}$ =' + '{:.3f} V'.format(self.Vgb_regions[1]))
-        plt.text(self.Vgb_regions[2] - Surface_Potential_To_VGB.vfb, 0.1, r'$V_{H0}$ =' + '{:.3f} V'.format(self.Vgb_regions[2]))
+        if len(self.Vgb_regions) > 2:
+            plt.text(self.Vgb_regions[-1] - Surface_Potential_To_VGB.vfb, 0.1, r'$V_{H0}$ =' + '{:.3f} V'.format(self.Vgb_regions[-1]))
 
         # Placing VCB over the graph
-        plt.text(self.Vgb_regions[2] - Surface_Potential_To_VGB.vfb + 3 * vt, 2 * self.phi_f + self.Vcb + 6 * vt, r'$V_{CB}$ =' + '{:.2f} V'.format(self.Vcb))
+        if len(self.Vgb_regions) > 2:
+            plt.text(self.Vgb_regions[-1] - Surface_Potential_To_VGB.vfb + 3 * vt, 2 * self.phi_f + self.Vcb + 6 * vt, r'$V_{CB}$ =' + '{:.2f} V'.format(self.Vcb))
 
         # Placing corresponding vlaues of phi, 2 phi, and (2 phi + 5vt) at appropriate points on surface potential-axis
         plt.text(0, self.phi_f + self.Vcb + 0.01, r'$\phi_{F}$ + $V_{CB}$ =' + '{:.3f} V'.format(self.phi_f + self.Vcb))
@@ -172,14 +176,14 @@ class Surface_Potential_To_VGB():
 
 
 if __name__ == "__main__":
-    tox = 40e-7
+    tox = 40 * 1e-7
     Na = 1e17
     q = 1.6e-19
     eps = 8.854e-14 * (11.8)
     epox = 8.854e-14 * (3.9)
     Cox = epox / tox
-    Vgb_max = 8
-    Vcb = 1.5
+    Vgb_max = 7
+    Vcb = 1
     gamma = ((m.sqrt(2 * q * eps * Na)) / Cox)
 
     x = Surface_Potential_To_VGB(tox, gamma, Vgb_max, Vcb, Na)
